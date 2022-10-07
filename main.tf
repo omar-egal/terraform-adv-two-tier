@@ -74,7 +74,6 @@ resource "aws_route_table_association" "public_sbn_association" {
   route_table_id = aws_route_table.public_route.id
 }
 
-
 # Create a security group for web access
 resource "aws_security_group" "web_sg" {
   name        = "alb_sg"
@@ -110,6 +109,34 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
+# Create database security group
+resource "aws_security_group" "db_sg" {
+  name        = "db_sg"
+  description = "Allow inbound traffic from web tier"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description     = "Allow inbound traffic from web tier"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.web_sg.id]
+  }
+
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_inbound_web_traffic"
+  }
+}
+
 # Create Application Load Balancer
 resource "aws_lb" "alb" {
   name               = "web-alb-tf"
@@ -122,12 +149,13 @@ resource "aws_lb" "alb" {
 
 }
 
-# Create Instance target group
+# Create target group
 resource "aws_lb_target_group" "alb_tg" {
   name     = "tf-web-lb-tg"
-  port     = 80
-  protocol = "HTTP"
+  port     = var.port
+  protocol = var.protocol
   vpc_id   = aws_vpc.vpc.id
+
 }
 
 data "aws_ami" "amazon-linux-2" {
@@ -146,8 +174,28 @@ data "aws_ami" "amazon-linux-2" {
   }
 }
 
+# Create ALB Listener
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = var.port
+  protocol          = var.protocol
 
-resource "aws_instance" "web_instance" {
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.alb_tg.arn
+  }
+}
+
+# Attach target group to instnaces
+resource "aws_lb_target_group_attachment" "alb_tg_attm" {
+  count            = length(var.public_sbn_cidr_ranges)
+  target_group_arn = aws_lb_target_group.alb_tg.arn
+  target_id        = aws_instance.web_instances[count.index].id
+  port             = var.port
+}
+
+# Create EC2 instnaces in each AZ
+resource "aws_instance" "web_instances" {
   depends_on = [aws_internet_gateway.igw]
 
   count                       = length(var.public_sbn_cidr_ranges)
@@ -164,3 +212,16 @@ resource "aws_instance" "web_instance" {
   }
 }
 
+# Create MySQL db instance
+resource "aws_db_instance" "mysqldb" {
+  allocated_storage    = 10
+  db_name              = "mydb"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  username             = var.db_username
+  password             = var.db_password
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+  availability_zone    = element(var.availability_zones, 1)
+}
