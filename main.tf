@@ -156,6 +156,7 @@ resource "aws_instance" "web_instance" {
   instance_type               = var.instance_type
   vpc_security_group_ids      = ["${aws_security_group.web_sg.id}"]
   subnet_id                   = element(aws_subnet.public_subnets[*].id, count.index)
+  user_data = "${file("bootstrap.sh")}"
   tags = {
     Name = "web_instance-${count.index + 1}"
     Tier = "Web"
