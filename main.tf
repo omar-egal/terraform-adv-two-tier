@@ -74,6 +74,7 @@ resource "aws_route_table_association" "public_sbn_association" {
   route_table_id = aws_route_table.public_route.id
 }
 
+
 # Create a security group for web access
 resource "aws_security_group" "web_sg" {
   name        = "alb_sg"
@@ -89,7 +90,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   ingress {
-    description = "HTTPS accessC"
+    description = "HTTPS access"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -121,10 +122,43 @@ resource "aws_lb" "alb" {
 
 }
 
-# Create Instance targer group
+# Create Instance target group
 resource "aws_lb_target_group" "alb_tg" {
   name     = "tf-web-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.vpc.id
 }
+
+data "aws_ami" "amazon-linux-2" {
+  most_recent = true
+
+
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+  }
+}
+
+
+resource "aws_instance" "web_instance" {
+  depends_on = [aws_internet_gateway.igw]
+
+  count                       = length(var.public_sbn_cidr_ranges)
+  ami                         = data.aws_ami.amazon-linux-2.id
+  associate_public_ip_address = true
+  instance_type               = var.instance_type
+  vpc_security_group_ids      = ["${aws_security_group.web_sg.id}"]
+  subnet_id                   = element(aws_subnet.public_subnets[*].id, count.index)
+  tags = {
+    Name = "web_instance-${count.index + 1}"
+    Tier = "Web"
+  }
+}
+
