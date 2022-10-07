@@ -17,3 +17,12 @@ output "public_subnet_ids" {
 output "private_subnet_ids" {
   value = [aws_subnet.private_subnets[*].id]
 }
+
+output "instance_ids" {
+  value = [aws_instance.web_instance[*].id]
+}
+
+output "instance_public_IPv4_addr" {
+  value = [aws_instance.web_instance[*].public_ip]
+}
+

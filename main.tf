@@ -118,7 +118,7 @@ resource "aws_lb" "alb" {
   security_groups    = [aws_security_group.web_sg.id]
   subnets            = [for subnet in aws_subnet.public_subnets : subnet.id]
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
 }
 
@@ -156,7 +156,8 @@ resource "aws_instance" "web_instance" {
   instance_type               = var.instance_type
   vpc_security_group_ids      = ["${aws_security_group.web_sg.id}"]
   subnet_id                   = element(aws_subnet.public_subnets[*].id, count.index)
-  user_data = "${file("bootstrap.sh")}"
+  availability_zone           = element(aws_subnet.public_subnets[*].availability_zone, count.index)
+  user_data                   = file("bootstrap.sh")
   tags = {
     Name = "web_instance-${count.index + 1}"
     Tier = "Web"
