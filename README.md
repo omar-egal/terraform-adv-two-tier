@@ -7,4 +7,5 @@ Each private subnet should be in a different AZ. A load balancer that will direc
 3. Deploy 1 EC2 t2.micro instance in each public subnet.
 
 ** Add a variables.tf file and make sure nothing is hardcoded in your main.tf.
+
 ** Use count to reduce the number of resource blocks for your public subnets and your ec2 instances.
