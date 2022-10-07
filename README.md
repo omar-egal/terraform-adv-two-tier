@@ -1,4 +1,4 @@
-# terraform-adv-two-tier
+# Terraform: Create AWS Two-Teir Architecture
 Terraform-AWS: Week 18 practice project two tier architecture 
 
 1. Deploy a VPC with CIDR 10.0.0.0/16 with 2 public subnets with CIDR 10.0.1.0/24 and 10.0.2.0/24. Each public subnet should be in a different AZ for high availability.
