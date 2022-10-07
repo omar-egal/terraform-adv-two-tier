@@ -36,5 +36,7 @@ variable "availability_zones" {
 }
 
 variable "instance_type" {
-    tyoe = string
+  type        = string
+  description = "Instance Type"
+  default     = "t2.micro"
 }
