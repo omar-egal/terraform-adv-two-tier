@@ -1,7 +1,3 @@
-output "vpc_cidr" {
-  value = aws_vpc.vpc.cidr_block
-}
-
 output "vpc_id" {
   value = aws_vpc.vpc.id
 }
@@ -19,10 +15,18 @@ output "private_subnet_ids" {
 }
 
 output "instance_ids" {
-  value = [aws_instance.web_instance[*].id]
+  value = [aws_instance.web_instances[*].id]
+}
+
+output "db_id" {
+  value = aws_db_instance.mysqldb.id
 }
 
 output "instance_public_IPv4_addr" {
-  value = [aws_instance.web_instance[*].public_ip]
+  value = [aws_instance.web_instances[*].public_ip]
+}
+
+output "alb_dns_name" {
+  value = aws_lb.alb.dns_name
 }
 

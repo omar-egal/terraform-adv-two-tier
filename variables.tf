@@ -40,3 +40,28 @@ variable "instance_type" {
   description = "Instance Type"
   default     = "t2.micro"
 }
+
+variable "port" {
+  type        = number
+  description = "The port number"
+  default     = 80
+}
+
+variable "protocol" {
+  type        = string
+  description = "The web traffic protocol"
+  default     = "HTTP"
+}
+
+variable "db_username" {
+  type        = string
+  description = "MySQL database admin username"
+  sensitive   = true
+}
+
+variable "db_password" {
+  type        = string
+  description = "MySQL database admin password"
+  sensitive   = true
+}
+
