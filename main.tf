@@ -1,17 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "4.33.0"
-    }
-  }
-}
-
-# Configure the AWS Provider
-provider "aws" {
-  region = var.region
-}
-
 # Create a VPC
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
