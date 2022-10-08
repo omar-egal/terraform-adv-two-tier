@@ -200,14 +200,14 @@ resource "aws_instance" "web_instances" {
 
 # Create MySQL db instance
 resource "aws_db_instance" "mysqldb" {
-  allocated_storage    = 10
-  db_name              = "mydb"
-  engine               = "mysql"
-  engine_version       = "5.7"
-  instance_class       = "db.t3.micro"
+  allocated_storage    = var.db_allocated_storage
+  db_name              = var.db_name
+  engine               = var.db_engine
+  engine_version       = var.db_engine_version
+  instance_class       = var.db_instance_class
   username             = var.db_username
   password             = var.db_password
-  parameter_group_name = "default.mysql5.7"
+  parameter_group_name = var.db_parameter_group_name
   skip_final_snapshot  = true
   availability_zone    = element(var.availability_zones, 1)
 }
