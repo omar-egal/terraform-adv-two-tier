@@ -65,3 +65,33 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "db_name" {
+  type        = string
+  description = "The database name"
+  default     = "mydb"
+}
+
+variable "db_engine" {
+  type    = string
+  default = "mysql"
+}
+
+variable "db_engine_version" {
+  type    = string
+  default = "5.7"
+}
+
+variable "db_instance_class" {
+  type    = string
+  default = "db.t3.micro"
+}
+
+variable "db_parameter_group_name" {
+  type    = string
+  default = "default.mysql5.7"
+}
+
+variable "db_allocated_storage" {
+  type    = number
+  default = 10
+}
